@@ -6,7 +6,7 @@ App per il ripasso a casa, pensata per la famiglia. Si apre dal browser del tele
 
 | Funzione | Come funziona |
 |---|---|
-| Foto della lezione | Si scattano o si scelgono fino a 6 pagine di libro, quaderno o appunti |
+| Foto o PDF della lezione | Si scattano o si scelgono fino a 6 foto di libro, quaderno o appunti, oppure si allega un PDF fino a 20 MB |
 | Scheda di ripasso | Riassunto breve e parole chiave, scritti per la classe del ragazzo |
 | Verifica | Domande a scelta multipla con correzione immediata e spiegazione |
 | Domande aperte | Il ragazzo risponde con parole sue e riceve una correzione gentile |
@@ -15,12 +15,12 @@ App per il ripasso a casa, pensata per la famiglia. Si apre dal browser del tele
 | Spazio genitori | Lezioni caricate, media delle verifiche, schede in attesa, lezioni da riprendere |
 | Copia di sicurezza | Si scarica un file con tutti i dati e lo si ripristina su un altro telefono |
 
-Il riassunto, le domande e le correzioni li prepara Claude, il modello di intelligenza artificiale di Anthropic, leggendo direttamente le foto. L'app chiede di usare solo il contenuto della lezione, senza aggiungere nulla.
+Il riassunto, le domande e le correzioni li prepara Claude, il modello di intelligenza artificiale di Anthropic, leggendo direttamente le foto o il PDF. L'app chiede di usare solo il contenuto della lezione, senza aggiungere nulla.
 
 ## Privacy
 
 - Lezioni, risultati e chiave di accesso restano **solo nel browser del telefono** che si usa. Non c'è nessun server dell'app.
-- Le foto vengono inviate ad Anthropic solo per preparare il ripasso e non vengono salvate dall'app. Con la chiave a pagamento Anthropic non le usa per addestrare i modelli.
+- Le foto e i PDF vengono inviati ad Anthropic solo per preparare il ripasso e non vengono salvati dall'app. Con la chiave a pagamento Anthropic non li usa per addestrare i modelli.
 - Il repository è pubblico, ma contiene solo il programma: nessun dato della famiglia.
 
 ## Messa in linea con GitHub Pages (una volta sola)

@@ -102,11 +102,17 @@ function paginaNuova(profilo) {
       <h1>Nuova lezione</h1>
       <p>Per <strong>${esc(profilo.nome)}</strong>, ${esc(profilo.classe)}.</p>
       <form id="nuova" class="modulo">
-        <label class="carica">
-          <span>📷 Scatta o scegli le foto (fino a 6 pagine)</span>
-          <input type="file" name="foto" accept="image/*" capture="environment" multiple required>
-        </label>
+        <div class="carica">
+          <p>Aggiungi fino a 6 foto oppure un PDF della lezione (massimo 20 MB).</p>
+          <div class="azioni due">
+            <label class="pulsante">📷 Scatta una foto
+              <input type="file" name="scatta" accept="image/*" capture="environment" hidden></label>
+            <label class="pulsante">📎 Scegli foto o PDF
+              <input type="file" name="scegli" accept="image/*,application/pdf,.pdf" multiple hidden></label>
+          </div>
+        </div>
         <div id="anteprime" class="anteprime"></div>
+        <div id="avviso-allegati"></div>
         <label>Materia (facoltativa) <input name="materia" maxlength="40" placeholder="per esempio Storia"></label>
         <button class="primario">Prepara il ripasso</button>
       </form>
@@ -114,24 +120,52 @@ function paginaNuova(profilo) {
       <div id="esito"></div>
     </section>`;
   const modulo = document.getElementById("nuova");
-  const input = modulo.foto;
-  let immagini = [];
-  input.addEventListener("change", async () => {
-    const file = [...input.files].slice(0, 6);
-    immagini = await Promise.all(file.map(riduci));
-    document.getElementById("anteprime").innerHTML = immagini.map((d) => `<img alt="" src="data:image/jpeg;base64,${d}">`).join("");
-  });
+  let allegati = [];
+  const disegnaAllegati = () => {
+    document.getElementById("anteprime").innerHTML = allegati.map((a, i) => `
+      <figure class="allegato">
+        ${a.tipo === "pdf" ? `<span class="pdf">📄<br>${esc(a.nome)}</span>` : `<img alt="Pagina ${i + 1}" src="data:image/jpeg;base64,${a.dati}">`}
+        <button type="button" class="togli" data-togli="${i}" aria-label="Togli">✕</button>
+      </figure>`).join("");
+    document.querySelectorAll("[data-togli]").forEach((b) =>
+      b.addEventListener("click", () => { allegati.splice(+b.dataset.togli, 1); disegnaAllegati(); })
+    );
+  };
+  const aggiungi = async (input) => {
+    const nota = document.getElementById("avviso-allegati");
+    nota.innerHTML = "";
+    for (const file of input.files) {
+      const pdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+      if (pdf) {
+        if (file.size > LIMITE_PDF) { nota.innerHTML = avviso(`«${file.name}» supera i 20 MB: dividilo o scegli solo le pagine della lezione.`); continue; }
+        if (allegati.some((a) => a.tipo === "pdf")) { nota.innerHTML = avviso("Si può allegare un solo PDF per lezione."); continue; }
+        allegati.push({ tipo: "pdf", nome: file.name, dati: await base64(file) });
+      } else if (file.type.startsWith("image/")) {
+        if (allegati.filter((a) => a.tipo === "immagine").length >= 6) { nota.innerHTML = avviso("Al massimo 6 foto per lezione."); break; }
+        allegati.push({ tipo: "immagine", nome: file.name, dati: await riduci(file) });
+      } else {
+        nota.innerHTML = avviso(`«${file.name}» non è una foto né un PDF.`);
+      }
+    }
+    input.value = "";
+    disegnaAllegati();
+  };
+  modulo.scatta.addEventListener("change", () => aggiungi(modulo.scatta));
+  modulo.scegli.addEventListener("change", () => aggiungi(modulo.scegli));
   modulo.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!immagini.length) return;
+    if (!allegati.length) {
+      document.getElementById("avviso-allegati").innerHTML = avviso("Aggiungi almeno una foto o un PDF.", "info");
+      return;
+    }
     const esito = document.getElementById("esito");
     const pulsante = modulo.querySelector("button");
     pulsante.disabled = true;
     esito.innerHTML = `<div class="attesa"><span class="rotella"></span> Sto leggendo la lezione e preparo il ripasso. Ci vuole circa un minuto.</div>`;
     try {
-      const contenuto = await creaLezione(db.chiaveApi(), db.modello(), immagini, profilo.classe, modulo.materia.value.trim());
+      const contenuto = await creaLezione(db.chiaveApi(), db.modello(), allegati, profilo.classe, modulo.materia.value.trim());
       if (!contenuto.leggibile) {
-        esito.innerHTML = avviso(contenuto.avviso || "Le foto non si leggono bene. Riprova con più luce e la pagina dritta.");
+        esito.innerHTML = avviso(contenuto.avviso || "Il materiale non si legge bene. Con le foto riprova con più luce e la pagina dritta.");
         pulsante.disabled = false;
         return;
       }
@@ -141,6 +175,17 @@ function paginaNuova(profilo) {
       esito.innerHTML = avviso(errore.message);
       pulsante.disabled = false;
     }
+  });
+}
+
+const LIMITE_PDF = 20 * 1024 * 1024;
+
+function base64(file) {
+  return new Promise((ok, ko) => {
+    const lettore = new FileReader();
+    lettore.onload = () => ok(lettore.result.split(",")[1]);
+    lettore.onerror = ko;
+    lettore.readAsDataURL(file);
   });
 }
 
@@ -393,7 +438,7 @@ function paginaImpostazioni() {
     <section class="carta">
       <h2>Privacy</h2>
       <p>Lezioni, risultati e chiave restano solo in questo browser: l'app non ha un proprio server.</p>
-      <p>Le foto e le risposte aperte vengono inviate ad Anthropic, che fornisce Claude, solo per preparare il ripasso. Con la chiave a pagamento Anthropic non le usa per addestrare i suoi modelli.</p>
+      <p>Le foto, i PDF e le risposte aperte vengono inviati ad Anthropic, che fornisce Claude, solo per preparare il ripasso. Con la chiave a pagamento Anthropic non le usa per addestrare i suoi modelli.</p>
       <p>${AVVISO_IA}</p>
     </section>
     <section class="carta">
