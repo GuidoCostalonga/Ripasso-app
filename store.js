@@ -2,6 +2,7 @@
 const CHIAVE_DATI = "ripasso.dati.v1";
 const CHIAVE_API = "ripasso.chiave";
 const CHIAVE_PROFILO = "ripasso.profilo";
+const CHIAVE_MODELLO = "ripasso.modello";
 
 // Giorni di attesa per ogni scatola del ripasso a intervalli.
 export const INTERVALLI = [0, 1, 2, 4, 7, 15, 30];
@@ -40,6 +41,9 @@ export function aggiungiGiorni(giorni) {
 
 export const chiaveApi = () => leggi(CHIAVE_API, "");
 export const salvaChiaveApi = (valore) => scrivi(CHIAVE_API, valore);
+
+export const modello = () => leggi(CHIAVE_MODELLO, "economico");
+export const salvaModello = (valore) => scrivi(CHIAVE_MODELLO, valore);
 
 export function profiloAttivo() {
   const scelto = leggi(CHIAVE_PROFILO, "");
