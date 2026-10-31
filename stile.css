@@ -197,3 +197,5 @@ textarea { resize: vertical; margin-bottom: 10px; }
 .allegato { position: relative; margin: 0; flex: none; }
 .allegato .pdf { display: grid; place-items: center; width: 96px; height: 96px; padding: 6px; font-size: 0.7rem; text-align: center; overflow: hidden; word-break: break-word; border: 1px solid var(--bordo); border-radius: 8px; background: var(--carta); }
 .togli { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 0.8rem; }
+.azioni.tre { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.azioni.tre .pulsante { padding: 12px 6px; font-size: 0.9rem; }

@@ -6,7 +6,7 @@ App per il ripasso a casa, pensata per la famiglia. Si apre dal browser del tele
 
 | Funzione | Come funziona |
 |---|---|
-| Foto o PDF della lezione | Si scattano o si scelgono fino a 6 foto di libro, quaderno o appunti, oppure si allega un PDF fino a 20 MB |
+| Foto, schermate o PDF della lezione | Si scattano, si scelgono o si incollano fino a 6 foto o schermate di libro, quaderno o appunti, oppure si allega un PDF fino a 20 MB |
 | Scheda di ripasso | Riassunto breve e parole chiave, scritti per la classe del ragazzo |
 | Verifica | Domande a scelta multipla con correzione immediata e spiegazione |
 | Domande aperte | Il ragazzo risponde con parole sue e riceve una correzione gentile |
