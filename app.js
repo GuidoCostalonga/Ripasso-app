@@ -103,12 +103,13 @@ function paginaNuova(profilo) {
       <p>Per <strong>${esc(profilo.nome)}</strong>, ${esc(profilo.classe)}.</p>
       <form id="nuova" class="modulo">
         <div class="carica">
-          <p>Aggiungi fino a 6 foto oppure un PDF della lezione (massimo 20 MB).</p>
-          <div class="azioni due">
+          <p>Aggiungi fino a 6 foto o schermate, oppure un PDF della lezione (massimo 20 MB).</p>
+          <div class="azioni tre">
             <label class="pulsante">📷 Scatta una foto
               <input type="file" name="scatta" accept="image/*" capture="environment" hidden></label>
             <label class="pulsante">📎 Scegli foto o PDF
               <input type="file" name="scegli" accept="image/*,application/pdf,.pdf" multiple hidden></label>
+            <button type="button" class="pulsante" id="incolla">📋 Incolla</button>
           </div>
         </div>
         <div id="anteprime" class="anteprime"></div>
@@ -131,10 +132,10 @@ function paginaNuova(profilo) {
       b.addEventListener("click", () => { allegati.splice(+b.dataset.togli, 1); disegnaAllegati(); })
     );
   };
-  const aggiungi = async (input) => {
+  const aggiungi = async (elenco) => {
     const nota = document.getElementById("avviso-allegati");
     nota.innerHTML = "";
-    for (const file of input.files) {
+    for (const file of elenco) {
       const pdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
       if (pdf) {
         if (file.size > LIMITE_PDF) { nota.innerHTML = avviso(`«${file.name}» supera i 20 MB: dividilo o scegli solo le pagine della lezione.`); continue; }
@@ -147,11 +148,40 @@ function paginaNuova(profilo) {
         nota.innerHTML = avviso(`«${file.name}» non è una foto né un PDF.`);
       }
     }
-    input.value = "";
     disegnaAllegati();
   };
-  modulo.scatta.addEventListener("change", () => aggiungi(modulo.scatta));
-  modulo.scegli.addEventListener("change", () => aggiungi(modulo.scegli));
+  for (const input of [modulo.scatta, modulo.scegli]) {
+    input.addEventListener("change", async () => {
+      await aggiungi([...input.files]);
+      input.value = "";
+    });
+  }
+  // Incolla con la scorciatoia della tastiera o con il menu del telefono.
+  incollaAttivo = (e) => {
+    const file = [...(e.clipboardData?.files || [])];
+    if (!file.length) return;
+    e.preventDefault();
+    aggiungi(file.map((f, i) => (f.name ? f : new File([f], `schermata-${i + 1}.png`, { type: f.type }))));
+  };
+  // Incolla con il pulsante: legge gli appunti, se il browser lo consente.
+  document.getElementById("incolla").addEventListener("click", async () => {
+    const nota = document.getElementById("avviso-allegati");
+    if (!navigator.clipboard?.read) {
+      nota.innerHTML = avviso("Questo browser non permette di leggere gli appunti dal pulsante. Tocca a lungo il campo Materia e scegli Incolla, oppure salva la schermata e usa Scegli foto o PDF.", "info");
+      return;
+    }
+    try {
+      const file = [];
+      for (const voce of await navigator.clipboard.read()) {
+        const tipo = voce.types.find((t) => t.startsWith("image/") || t === "application/pdf");
+        if (tipo) file.push(new File([await voce.getType(tipo)], tipo === "application/pdf" ? "documento.pdf" : `schermata-${file.length + 1}.png`, { type: tipo }));
+      }
+      if (file.length) await aggiungi(file);
+      else nota.innerHTML = avviso("Negli appunti non c'è un'immagine. Fai prima la schermata e copiala, poi tocca Incolla.", "info");
+    } catch {
+      nota.innerHTML = avviso("Il browser non ha dato il permesso di leggere gli appunti. Riprova e consenti l'accesso, oppure usa Scegli foto o PDF.", "info");
+    }
+  });
   modulo.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!allegati.length) {
@@ -476,7 +506,12 @@ function paginaImpostazioni() {
 
 // ---------- Navigazione ----------
 
+// Gestore dell'incolla attivo solo nella pagina della nuova lezione.
+let incollaAttivo = null;
+addEventListener("paste", (e) => incollaAttivo?.(e));
+
 function mostra() {
+  incollaAttivo = null;
   const [, pagina, a, b] = location.hash.split("/");
   document.querySelectorAll(".barra a").forEach((x) => x.classList.toggle("attiva", x.getAttribute("href") === `#/${pagina || ""}`));
   const profilo = db.profiloAttivo();
