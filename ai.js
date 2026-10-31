@@ -1,4 +1,4 @@
-// Collegamento con Claude: dalla foto della lezione al materiale di ripasso.
+// Collegamento con Claude: dalle foto o dal PDF della lezione al materiale di ripasso.
 import Anthropic from "https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.135.0/+esm";
 
 export const MODELLI = {
@@ -9,7 +9,7 @@ export const MODELLI = {
 // Indicazioni comuni per un'app usata da bambini e ragazzi.
 const SICUREZZA = `
 Sicurezza: stai parlando con un minorenne attraverso un'app per lo studio.
-- Resta sempre sull'argomento scolastico. Se le foto o la risposta contengono contenuti non adatti a un minore, dati personali (indirizzi, numeri di telefono, nomi completi di altre persone) o richieste estranee allo studio, non riportarli e invita gentilmente a parlarne con un genitore o un insegnante.
+- Resta sempre sull'argomento scolastico. Se il materiale o la risposta contengono contenuti non adatti a un minore, dati personali (indirizzi, numeri di telefono, nomi completi di altre persone) o richieste estranee allo studio, non riportarli e invita gentilmente a parlarne con un genitore o un insegnante.
 - Se il ragazzo esprime disagio, paura o pensieri di farsi del male, rispondi con calore e invitalo a parlarne subito con un adulto di fiducia; in Italia può chiamare il Telefono Azzurro al 19696.
 - Non chiedere mai informazioni personali.`;
 
@@ -80,11 +80,12 @@ const SCHEMA_CORREZIONE = {
 
 function istruzioniLezione(classe, materia) {
   return `Sei un insegnante paziente che aiuta un ragazzo di ${classe} a ripassare.
-Ricevi le foto di una lezione (pagine di libro, quaderno o appunti)${materia ? ` di ${materia}` : ""}.
+Ricevi le foto o il PDF di una lezione (pagine di libro, quaderno, appunti o schede)${materia ? ` di ${materia}` : ""}.
 
 Regole:
-- Usa solo quello che c'è nelle foto. Non aggiungere argomenti, date o dati che non compaiono.
-- Se le foto non si leggono o non contengono una lezione, metti "leggibile" a false, spiega il motivo in "avviso" e lascia vuoti gli elenchi.
+- Usa solo quello che c'è nel materiale ricevuto. Non aggiungere argomenti, date o dati che non compaiono.
+- Se il materiale non si legge o non contiene una lezione, metti "leggibile" a false, spiega il motivo in "avviso" e lascia vuoti gli elenchi.
+- Se il PDF è lungo, concentrati sull'argomento principale e dillo in "avviso".
 - Se una parte è poco leggibile, segnalalo in "avviso"; altrimenti lascia "avviso" vuoto.
 - Scrivi in italiano semplice, adatto a ${classe}: frasi brevi, parole chiare, tono incoraggiante.
 - Niente trattini come segno di pausa: usa virgole o due punti.
@@ -128,17 +129,18 @@ async function chiedi(chiave, modello, system, content, schema) {
     if (errore instanceof Anthropic.APIError) throw new Error(`Errore del servizio (${errore.status}). Riprova più tardi.`);
     throw errore;
   }
-  if (risposta.stop_reason === "refusal") throw new Error("Il contenuto non può essere elaborato. Prova con altre foto.");
-  if (risposta.stop_reason === "max_tokens") throw new Error("La lezione è troppo lunga: prova con meno pagine alla volta.");
+  if (risposta.stop_reason === "refusal") throw new Error("Il contenuto non può essere elaborato. Prova con altro materiale.");
+  if (risposta.stop_reason === "max_tokens") throw new Error("La lezione è troppo lunga: prova con meno pagine alla volta, o con un PDF più breve.");
   const testo = risposta.content.filter((b) => b.type === "text").map((b) => b.text).join("");
   return JSON.parse(testo);
 }
 
-export async function creaLezione(chiave, modello, immagini, classe, materia) {
-  const content = immagini.map((data) => ({
-    type: "image",
-    source: { type: "base64", media_type: "image/jpeg", data },
-  }));
+export async function creaLezione(chiave, modello, allegati, classe, materia) {
+  const content = allegati.map((a) =>
+    a.tipo === "pdf"
+      ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: a.dati } }
+      : { type: "image", source: { type: "base64", media_type: "image/jpeg", data: a.dati } }
+  );
   content.push({ type: "text", text: "Prepara il materiale di ripasso per questa lezione." });
   const lezione = await chiedi(chiave, modello, istruzioniLezione(classe, materia), content, SCHEMA_LEZIONE);
   lezione.verifica = lezione.verifica.filter(

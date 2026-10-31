@@ -192,3 +192,8 @@ textarea { resize: vertical; margin-bottom: 10px; }
 .barra a span { font-size: 1.3rem; }
 .barra a.attiva { color: var(--primario); }
 .modulo label.opzione { display: flex; font-weight: 400; }
+.carica p { margin: 0 0 10px; }
+.carica .pulsante { cursor: pointer; }
+.allegato { position: relative; margin: 0; flex: none; }
+.allegato .pdf { display: grid; place-items: center; width: 96px; height: 96px; padding: 6px; font-size: 0.7rem; text-align: center; overflow: hidden; word-break: break-word; border: 1px solid var(--bordo); border-radius: 8px; background: var(--carta); }
+.togli { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 0.8rem; }
