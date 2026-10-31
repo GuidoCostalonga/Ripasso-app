@@ -1,0 +1,16 @@
+{
+  "name": "Ripasso",
+  "short_name": "Ripasso",
+  "description": "Dalla foto della lezione alla scheda di ripasso, alla verifica e alle schede da ripetere.",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f4ee",
+  "theme_color": "#1f7a5c",
+  "icons": [
+    { "src": "icona.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icona-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icona-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
