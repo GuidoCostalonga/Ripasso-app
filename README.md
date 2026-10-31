@@ -20,14 +20,14 @@ Il riassunto, le domande e le correzioni li prepara Claude, il modello di intell
 ## Privacy
 
 - Lezioni, risultati e chiave di accesso restano **solo nel browser del telefono** che si usa. Non c'è nessun server dell'app.
-- Le foto vengono inviate ad Anthropic solo per preparare il ripasso e non vengono salvate dall'app.
+- Le foto vengono inviate ad Anthropic solo per preparare il ripasso e non vengono salvate dall'app. Con la chiave a pagamento Anthropic non le usa per addestrare i modelli.
 - Il repository è pubblico, ma contiene solo il programma: nessun dato della famiglia.
 
 ## Messa in linea con GitHub Pages (una volta sola)
 
 1. Nel repository aprire **Settings**, poi **Pages**.
 2. In **Source** scegliere **Deploy from a branch**, ramo `main`, cartella `/ (root)`, e salvare.
-3. Dopo un paio di minuti l'app è raggiungibile all'indirizzo `https://guidocostalonga.github.io/ripasso-app/`.
+3. Dopo un paio di minuti l'app è raggiungibile all'indirizzo `https://guidocostalonga.github.io/Ripasso-app/`.
 
 ## Prima configurazione sul telefono
 
@@ -36,9 +36,26 @@ Il riassunto, le domande e le correzioni li prepara Claude, il modello di intell
 3. Aggiungere i profili dei figli.
 4. Aggiungere l'app alla schermata iniziale: su iPhone con Safari, pulsante Condividi e poi "Aggiungi a Home"; su Android con Chrome, menu e poi "Aggiungi a schermata Home".
 
-## Costi
+## Costi e qualità
 
-L'app è gratuita; si paga solo l'uso di Claude, a consumo, con la chiave della famiglia. Il modello usato è Claude Opus 5.5. Il costo di ogni lezione dipende dal numero di pagine e dalla lunghezza del testo: conviene guardare la spesa reale nella pagina di platform.claude.com dopo le prime lezioni.
+L'app è gratuita; si paga solo l'uso di Claude, a consumo, con la chiave della famiglia. In **Impostazioni** si sceglie il modello:
+
+| Scelta | Modello | Prezzo ufficiale per milione di parti di testo (entrata / uscita) |
+|---|---|---|
+| Economico (predefinito) | Claude Haiku 5.5 | 0,10 / 0,50 dollari |
+| Massima qualità | Claude Opus 5.5 | 4 / 20 dollari |
+
+Il costo reale di ogni lezione dipende dal numero di pagine: conviene controllarlo su platform.claude.com dopo le prime lezioni.
+
+## Uso da parte di minori
+
+L'app segue le [linee guida di Anthropic per i servizi usati da minori](https://support.claude.com/en/articles/9307344-responsible-use-of-anthropic-s-models-guidelines-for-organizations-serving-minors):
+
+- dichiara in modo visibile che schede e correzioni sono preparate da un'intelligenza artificiale e vanno controllate con il libro;
+- chiede a Claude di restare sugli argomenti scolastici, di non riportare dati personali né contenuti non adatti e, se un ragazzo esprime disagio, di invitarlo a parlarne con un adulto o con il Telefono Azzurro (19696);
+- tiene i dati solo sul telefono e spiega nella pagina Impostazioni dove vanno foto e risposte.
+
+I servizi gratuiti di altri fornitori sono stati esclusi perché le loro condizioni vietano le app usate da minori o prevedono l'uso dei dati inviati per addestrare i modelli.
 
 ## Struttura dei file
 

@@ -1,7 +1,17 @@
 // Collegamento con Claude: dalla foto della lezione al materiale di ripasso.
 import Anthropic from "https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.135.0/+esm";
 
-const MODELLO = "claude-opus-5-5";
+export const MODELLI = {
+  economico: { id: "claude-haiku-5-5", nome: "Economico" },
+  qualita: { id: "claude-opus-5-5", nome: "Massima qualità" },
+};
+
+// Indicazioni comuni per un'app usata da bambini e ragazzi.
+const SICUREZZA = `
+Sicurezza: stai parlando con un minorenne attraverso un'app per lo studio.
+- Resta sempre sull'argomento scolastico. Se le foto o la risposta contengono contenuti non adatti a un minore, dati personali (indirizzi, numeri di telefono, nomi completi di altre persone) o richieste estranee allo studio, non riportarli e invita gentilmente a parlarne con un genitore o un insegnante.
+- Se il ragazzo esprime disagio, paura o pensieri di farsi del male, rispondi con calore e invitalo a parlarne subito con un adulto di fiducia; in Italia può chiamare il Telefono Azzurro al 19696.
+- Non chiedere mai informazioni personali.`;
 
 const SCHEMA_LEZIONE = {
   type: "object",
@@ -83,7 +93,8 @@ Regole:
 - "verifica": da 6 a 10 domande a scelta multipla con 4 opzioni ciascuna; "corretta" è la posizione della risposta giusta, contando da 0; varia la posizione; "spiegazione" dice perché è giusta.
 - "aperte": da 3 a 5 domande a cui rispondere con parole proprie; "traccia" è la risposta attesa in breve.
 - "schede": da 6 a 15 schede da ripetere, con una domanda o un termine sul fronte e la risposta breve sul retro.
-- "materia": la materia scolastica della lezione, con l'iniziale maiuscola.`;
+- "materia": la materia scolastica della lezione, con l'iniziale maiuscola.
+${SICUREZZA}`;
 }
 
 function istruzioniCorrezione(classe) {
@@ -91,22 +102,24 @@ function istruzioniCorrezione(classe) {
 Valuta il contenuto, non l'ortografia. "esito": "giusta" se i punti essenziali ci sono, "parziale" se ne manca qualcuno, "da_rivedere" se la risposta è sbagliata o vuota.
 "commento": due o tre frasi incoraggianti che dicono cosa va bene e cosa aggiungere, rivolte direttamente al ragazzo.
 "risposta_completa": una risposta modello breve.
-Basati solo sulla lezione fornita. Niente trattini come segno di pausa.`;
+Basati solo sulla lezione fornita. Niente trattini come segno di pausa.
+${SICUREZZA}`;
 }
 
-async function chiedi(chiave, system, content, schema) {
+async function chiedi(chiave, modello, system, content, schema) {
   const client = new Anthropic({ apiKey: chiave, dangerouslyAllowBrowser: true });
+  const richiesta = {
+    model: (MODELLI[modello] || MODELLI.economico).id,
+    max_tokens: 16000,
+    output_config: { effort: "medium", format: { type: "json_schema", schema } },
+    system,
+    messages: [{ role: "user", content }],
+  };
+  // Il modello di massima qualità può passare a un altro modello se rifiuta la richiesta.
+  if (modello === "qualita") Object.assign(richiesta, { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" });
   let risposta;
   try {
-    risposta = await client.beta.messages.create({
-      model: MODELLO,
-      max_tokens: 16000,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      output_config: { effort: "medium", format: { type: "json_schema", schema } },
-      system,
-      messages: [{ role: "user", content }],
-    });
+    risposta = await client.beta.messages.create(richiesta);
   } catch (errore) {
     if (errore instanceof Anthropic.AuthenticationError) throw new Error("La chiave di accesso non è valida. Controllala in Impostazioni.");
     if (errore instanceof Anthropic.RateLimitError) throw new Error("Troppe richieste in poco tempo. Riprova tra un minuto.");
@@ -121,20 +134,20 @@ async function chiedi(chiave, system, content, schema) {
   return JSON.parse(testo);
 }
 
-export async function creaLezione(chiave, immagini, classe, materia) {
+export async function creaLezione(chiave, modello, immagini, classe, materia) {
   const content = immagini.map((data) => ({
     type: "image",
     source: { type: "base64", media_type: "image/jpeg", data },
   }));
   content.push({ type: "text", text: "Prepara il materiale di ripasso per questa lezione." });
-  const lezione = await chiedi(chiave, istruzioniLezione(classe, materia), content, SCHEMA_LEZIONE);
+  const lezione = await chiedi(chiave, modello, istruzioniLezione(classe, materia), content, SCHEMA_LEZIONE);
   lezione.verifica = lezione.verifica.filter(
     (d) => d.opzioni.length >= 2 && d.corretta >= 0 && d.corretta < d.opzioni.length
   );
   return lezione;
 }
 
-export async function correggiRisposta(chiave, classe, lezione, domanda, risposta) {
+export async function correggiRisposta(chiave, modello, classe, lezione, domanda, risposta) {
   const contesto = [
     `Lezione: ${lezione.titolo}`,
     lezione.riassunto.join("\n"),
@@ -142,5 +155,5 @@ export async function correggiRisposta(chiave, classe, lezione, domanda, rispost
     `Risposta attesa: ${domanda.traccia}`,
     `Risposta del ragazzo: ${risposta}`,
   ].join("\n\n");
-  return chiedi(chiave, istruzioniCorrezione(classe), [{ type: "text", text: contesto }], SCHEMA_CORREZIONE);
+  return chiedi(chiave, modello, istruzioniCorrezione(classe), [{ type: "text", text: contesto }], SCHEMA_CORREZIONE);
 }

@@ -1,6 +1,6 @@
 // Interfaccia: pagine, navigazione e interazioni.
 import * as db from "./store.js";
-import { creaLezione, correggiRisposta } from "./ai.js";
+import { creaLezione, correggiRisposta, MODELLI } from "./ai.js";
 
 const CLASSI = [
   "prima elementare", "seconda elementare", "terza elementare", "quarta elementare", "quinta elementare",
@@ -9,6 +9,8 @@ const CLASSI = [
 ];
 
 const radice = document.getElementById("pagina");
+
+const AVVISO_IA = "Le schede e le correzioni sono preparate da un'intelligenza artificiale: possono contenere errori. Controllale sempre con il libro.";
 
 function esc(testo) {
   return String(testo ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -108,6 +110,7 @@ function paginaNuova(profilo) {
         <label>Materia (facoltativa) <input name="materia" maxlength="40" placeholder="per esempio Storia"></label>
         <button class="primario">Prepara il ripasso</button>
       </form>
+      <p class="nota">🤖 ${AVVISO_IA}</p>
       <div id="esito"></div>
     </section>`;
   const modulo = document.getElementById("nuova");
@@ -126,7 +129,7 @@ function paginaNuova(profilo) {
     pulsante.disabled = true;
     esito.innerHTML = `<div class="attesa"><span class="rotella"></span> Sto leggendo la lezione e preparo il ripasso. Ci vuole circa un minuto.</div>`;
     try {
-      const contenuto = await creaLezione(db.chiaveApi(), immagini, profilo.classe, modulo.materia.value.trim());
+      const contenuto = await creaLezione(db.chiaveApi(), db.modello(), immagini, profilo.classe, modulo.materia.value.trim());
       if (!contenuto.leggibile) {
         esito.innerHTML = avviso(contenuto.avviso || "Le foto non si leggono bene. Riprova con più luce e la pagina dritta.");
         pulsante.disabled = false;
@@ -171,6 +174,7 @@ function paginaLezione(profilo, lid, scheda = "scheda") {
       <small>${dataEstesa(l.data)}</small>
     </header>
     ${l.avviso ? avviso(l.avviso, "info") : ""}
+    <p class="nota">🤖 ${AVVISO_IA}</p>
     <nav class="schede-nav">${Object.entries(schede).map(([k, v]) =>
       `<a class="${k === scheda ? "attiva" : ""}" href="#/lezione/${l.id}/${k}">${v}</a>`).join("")}</nav>
     <div id="contenuto"></div>
@@ -263,7 +267,7 @@ function vistaAperte(el, l, profilo) {
       b.disabled = true;
       esito.innerHTML = `<div class="attesa"><span class="rotella"></span> Leggo la tua risposta…</div>`;
       try {
-        const c = await correggiRisposta(db.chiaveApi(), profilo.classe, l, d, f.risposta.value.trim());
+        const c = await correggiRisposta(db.chiaveApi(), db.modello(), profilo.classe, l, d, f.risposta.value.trim());
         const etichetta = { giusta: "✓ Giusta", parziale: "◐ Quasi", da_rivedere: "✗ Da rivedere" }[c.esito];
         esito.innerHTML = `<div class="correzione ${c.esito}"><strong>${etichetta}</strong><p>${esc(c.commento)}</p>
           <p class="traccia"><strong>Una risposta completa:</strong> ${esc(c.risposta_completa)}</p></div>`;
@@ -379,6 +383,20 @@ function paginaImpostazioni() {
       <div id="esito-chiave"></div>
     </section>
     <section class="carta">
+      <h2>Qualità delle risposte</h2>
+      <form id="modello" class="modulo">
+        ${Object.entries({ economico: "costa pochissimo, adatto all'uso quotidiano", qualita: "legge meglio le foto difficili, costa circa 40 volte di più" }).map(([k, d]) => `
+          <label class="opzione"><input type="radio" name="modello" value="${k}" ${db.modello() === k ? "checked" : ""}>
+            <span><strong>${MODELLI[k].nome}</strong><br><small>${d}</small></span></label>`).join("")}
+      </form>
+    </section>
+    <section class="carta">
+      <h2>Privacy</h2>
+      <p>Lezioni, risultati e chiave restano solo in questo browser: l'app non ha un proprio server.</p>
+      <p>Le foto e le risposte aperte vengono inviate ad Anthropic, che fornisce Claude, solo per preparare il ripasso. Con la chiave a pagamento Anthropic non le usa per addestrare i suoi modelli.</p>
+      <p>${AVVISO_IA}</p>
+    </section>
+    <section class="carta">
       <h2>Copia di sicurezza</h2>
       <p>Lezioni e risultati stanno solo in questo browser. Salvate ogni tanto una copia, anche per passarla su un altro telefono.</p>
       <div class="azioni">
@@ -392,6 +410,7 @@ function paginaImpostazioni() {
     const ok = db.salvaChiaveApi(e.target.chiave.value.trim());
     document.getElementById("esito-chiave").innerHTML = ok ? avviso("Chiave salvata.", "ok") : avviso("Impossibile salvare: il browser blocca l'archivio locale.");
   });
+  document.getElementById("modello").addEventListener("change", (e) => db.salvaModello(e.target.value));
   document.getElementById("esporta").addEventListener("click", () => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([db.esporta()], { type: "application/json" }));

@@ -121,6 +121,7 @@ textarea { resize: vertical; margin-bottom: 10px; }
   background: var(--carta); border: 1px solid var(--bordo); border-radius: var(--raggio);
 }
 .materia { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--primario); }
+.nota { font-size: 0.9rem; color: var(--tenue); margin: 10px 0; }
 .vuoto { color: var(--tenue); text-align: center; padding: 24px 0; }
 
 .indietro { display: inline-block; margin: 4px 0 8px; text-decoration: none; font-weight: 600; }
@@ -190,3 +191,4 @@ textarea { resize: vertical; margin-bottom: 10px; }
 }
 .barra a span { font-size: 1.3rem; }
 .barra a.attiva { color: var(--primario); }
+.modulo label.opzione { display: flex; font-weight: 400; }
