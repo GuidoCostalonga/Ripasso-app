@@ -1,6 +1,7 @@
 // Interfaccia: pagine, navigazione e interazioni.
 import * as db from "./store.js";
 import { creaLezione, correggiRisposta, MODELLI } from "./ai.js";
+import { mostraLettore, nascondiLettore } from "./lettore.js";
 
 const CLASSI = [
   "prima elementare", "seconda elementare", "terza elementare", "quarta elementare", "quinta elementare",
@@ -256,6 +257,7 @@ function paginaLezione(profilo, lid, scheda = "scheda") {
     <button class="testo pericolo" id="elimina">Elimina questa lezione</button>`;
   const contenuto = document.getElementById("contenuto");
   ({ scheda: vistaScheda, verifica: vistaVerifica, aperte: vistaAperte, ripeti: vistaRipeti })[scheda](contenuto, l, profilo);
+  mostraLettore(radice);
   document.getElementById("elimina").addEventListener("click", () => {
     if (confirm("Eliminare la lezione e tutti i suoi risultati?")) { db.eliminaLezione(l.id); vai("#/"); }
   });
@@ -273,7 +275,10 @@ function vistaScheda(el, l) {
     </section>`;
 }
 
+const area = () => document.getElementById("lettore");
+
 function vistaVerifica(el, l) {
+  if (area()) mostraLettore(radice);
   const risposte = new Array(l.verifica.length).fill(null);
   el.innerHTML = `
     <form id="verifica" class="carta">
@@ -363,6 +368,7 @@ function paginaRipasso(profilo) {
   const elenco = db.schedeDaRipassare(profilo.id);
   radice.innerHTML = `<a class="indietro" href="#/">← Lezioni</a><h1>Ripasso di oggi</h1><div id="contenuto"></div>`;
   giraSchede(document.getElementById("contenuto"), elenco, true);
+  mostraLettore(radice);
 }
 
 // Mostra le schede una alla volta. Con "registra" aggiorna il calendario del ripasso.
@@ -370,6 +376,7 @@ function giraSchede(el, elenco, registra) {
   let pos = 0;
   let ricordate = 0;
   const disegna = () => {
+    if (area()) mostraLettore(radice);
     if (pos >= elenco.length) {
       el.innerHTML = `<section class="carta evidenza"><h2>Finito!</h2>
         <p>Hai ricordato <strong>${ricordate} su ${elenco.length}</strong>. ${registra ? "Le schede sbagliate tornano domani, le altre più avanti." : ""}</p>
@@ -512,6 +519,7 @@ addEventListener("paste", (e) => incollaAttivo?.(e));
 
 function mostra() {
   incollaAttivo = null;
+  nascondiLettore();
   const [, pagina, a, b] = location.hash.split("/");
   document.querySelectorAll(".barra a").forEach((x) => x.classList.toggle("attiva", x.getAttribute("href") === `#/${pagina || ""}`));
   const profilo = db.profiloAttivo();

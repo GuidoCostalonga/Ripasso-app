@@ -1,7 +1,7 @@
 // Tiene in memoria i file dell'app, così si apre anche senza rete.
-const VERSIONE = "ripasso-v4";
+const VERSIONE = "ripasso-v5";
 const FILE = [
-  "./", "index.html", "stile.css", "app.js", "store.js", "ai.js",
+  "./", "index.html", "stile.css", "app.js", "store.js", "ai.js", "lettore.js",
   "manifest.webmanifest", "icona.svg", "icona-192.png", "icona-512.png",
   "https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.135.0/+esm",
 ];

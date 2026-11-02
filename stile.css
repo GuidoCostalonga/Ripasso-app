@@ -199,3 +199,28 @@ textarea { resize: vertical; margin-bottom: 10px; }
 .togli { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 0.8rem; }
 .azioni.tre { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 .azioni.tre .pulsante { padding: 12px 6px; font-size: 0.9rem; }
+
+/* Lettura ad alta voce e righello */
+#lettore {
+  position: fixed; left: 0; right: 0; z-index: 20;
+  bottom: calc(60px + env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: 1.4fr 0.6fr 0.7fr 1.3fr; gap: 6px;
+  padding: 8px 12px; background: var(--carta); border-top: 1px solid var(--bordo);
+}
+#lettore button {
+  border: 1px solid var(--bordo); background: var(--sfondo); color: var(--testo);
+  border-radius: 10px; padding: 9px 4px; font-weight: 700; font-size: 0.9rem;
+}
+#lettore button[data-azione="leggi"] { background: var(--primario); color: var(--primario-testo); border: 0; }
+#lettore button.attiva { background: var(--accento); color: #1d2421; border-color: transparent; }
+.barra { z-index: 20; }
+body.con-lettore .pagina { padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
+#righello {
+  position: fixed; left: 0; right: 0; z-index: 10; pointer-events: none;
+  background: rgba(242, 182, 50, 0.16);
+  border-top: 2px solid var(--accento); border-bottom: 2px solid var(--accento);
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.3);
+  transition: top 0.15s ease, height 0.15s ease;
+}
+@media (prefers-reduced-motion: reduce) { #righello { transition: none; } }
+.frase.letta { background: rgba(242, 182, 50, 0.35); border-radius: 4px; }
