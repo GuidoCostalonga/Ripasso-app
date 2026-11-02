@@ -1,3 +1,13 @@
+/* Leggio e Leggio Scuola: SIL Open Font License 1.1, vedi caratteri/licenze */
+@font-face { font-family: "Leggio"; src: url("caratteri/Leggio-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Leggio"; src: url("caratteri/Leggio-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Leggio"; src: url("caratteri/Leggio-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Leggio"; src: url("caratteri/Leggio-BoldItalic.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: "Leggio Scuola"; src: url("caratteri/LeggioScuola-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Leggio Scuola"; src: url("caratteri/LeggioScuola-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Leggio Scuola"; src: url("caratteri/LeggioScuola-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Leggio Scuola"; src: url("caratteri/LeggioScuola-BoldItalic.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }
+
 :root {
   --sfondo: #f6f4ee;
   --carta: #ffffff;
@@ -224,3 +234,12 @@ body.con-lettore .pagina { padding-bottom: calc(150px + env(safe-area-inset-bott
 }
 @media (prefers-reduced-motion: reduce) { #righello { transition: none; } }
 .frase.letta { background: rgba(242, 182, 50, 0.35); border-radius: 4px; }
+
+/* Carattere ad alta leggibilità scelto in Impostazioni */
+html[data-carattere="leggio"] body { font-family: "Leggio", Verdana, sans-serif; }
+html[data-carattere="scuola"] body { font-family: "Leggio Scuola", Verdana, sans-serif; }
+html[data-carattere="leggio"] body, html[data-carattere="scuola"] body { line-height: 1.5; }
+.prova-carattere { display: inline-block; margin-top: 4px; font-size: 1.15rem; }
+.prova-carattere[data-prova="leggio"] { font-family: "Leggio", Verdana, sans-serif; }
+.prova-carattere[data-prova="scuola"] { font-family: "Leggio Scuola", Verdana, sans-serif; }
+.prova-carattere[data-prova="telefono"] { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }

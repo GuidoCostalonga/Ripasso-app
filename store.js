@@ -43,6 +43,8 @@ export const chiaveApi = () => leggi(CHIAVE_API, "");
 export const salvaChiaveApi = (valore) => scrivi(CHIAVE_API, valore);
 
 export const modello = () => leggi(CHIAVE_MODELLO, "economico");
+export const carattere = () => leggi("ripasso.carattere", "automatico");
+export const salvaCarattere = (valore) => scrivi("ripasso.carattere", valore);
 export const salvaModello = (valore) => scrivi(CHIAVE_MODELLO, valore);
 
 export function profiloAttivo() {

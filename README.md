@@ -12,6 +12,7 @@ App per il ripasso a casa, pensata per la famiglia. Si apre dal browser del tele
 | Domande aperte | Il ragazzo risponde con parole sue e riceve una correzione gentile |
 | Schede da ripetere | Ripasso a intervalli: una scheda ricordata torna dopo 1, 2, 4, 7, 15 e 30 giorni; una dimenticata torna il giorno dopo |
 | Ascolto con righello | Il pulsante Ascolta legge ad alta voce la pagina frase per frase, con una fascia colorata che segue la frase letta e oscura il resto; toccando una frase si riparte da lì; la velocità si regola; il Righello si può usare anche in silenzio, seguendo il dito. Usa la voce del telefono: gratis e senza rete |
+| Carattere ad alta leggibilità | Leggio (medie, superiori, adulti) e Leggio Scuola (primi lettori): b d p q con forme diverse, testo più arioso. In automatico Leggio Scuola per le elementari e Leggio dalle medie; si cambia in Impostazioni |
 | Più figli | Un profilo per ciascuno, con nome e classe |
 | Spazio genitori | Lezioni caricate, media delle verifiche, schede in attesa, lezioni da riprendere |
 | Copia di sicurezza | Si scarica un file con tutti i dati e lo si ripristina su un altro telefono |
@@ -67,8 +68,13 @@ I servizi gratuiti di altri fornitori sono stati esclusi perché le loro condizi
 | `ai.js` | Richieste a Claude: preparazione della lezione e correzione delle risposte aperte |
 | `store.js` | Archivio locale e calendario del ripasso |
 | `lettore.js` | Lettura ad alta voce e righello |
+| `caratteri/` | Caratteri Leggio e Leggio Scuola con le loro licenze OFL |
 | `stile.css` | Grafica, con tema chiaro e scuro automatico |
 | `sw.js` | Permette di aprire l'app anche senza rete |
 | `manifest.webmanifest`, `icona*` | Nome e icona per la schermata iniziale |
 
 Non serve nessuna compilazione: sono file statici. Per provarla sul computer basta avviare `python3 -m http.server` nella cartella e aprire `http://localhost:8000`.
+
+## Licenze dei caratteri
+
+Leggio e Leggio Scuola sono distribuiti con la SIL Open Font License 1.1 (testi completi in `caratteri/licenze`). Leggio deriva da Atkinson Hyperlegible Next (Copyright 2020-2024 The Atkinson Hyperlegible Next Project Authors); Leggio Scuola deriva da Andika (Copyright 2004-2022 SIL International).

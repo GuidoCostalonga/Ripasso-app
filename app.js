@@ -465,6 +465,20 @@ function paginaImpostazioni() {
       <div id="esito-chiave"></div>
     </section>
     <section class="carta">
+      <h2>Carattere</h2>
+      <p>Leggio e Leggio Scuola sono caratteri ad alta leggibilità pensati per chi ha difficoltà di lettura: le lettere b d p q hanno forme diverse e il testo è più arioso.</p>
+      <form id="carattere" class="modulo">
+        ${[
+          ["automatico", "Automatico", "Leggio Scuola per le elementari, Leggio dalle medie in poi", ""],
+          ["leggio", "Leggio", "per medie, superiori e adulti", "leggio"],
+          ["scuola", "Leggio Scuola", "a e g come si scrivono a mano, per i primi lettori", "scuola"],
+          ["telefono", "Carattere del telefono", "quello standard del dispositivo", "telefono"],
+        ].map(([k, nome, d, prova]) => `
+          <label class="opzione"><input type="radio" name="carattere" value="${k}" ${db.carattere() === k ? "checked" : ""}>
+            <span><strong>${nome}</strong><br><small>${d}</small>${prova ? `<br><span class="prova-carattere" data-prova="${prova}">bdpq Il1 0O agè</span>` : ""}</span></label>`).join("")}
+      </form>
+    </section>
+    <section class="carta">
       <h2>Qualità delle risposte</h2>
       <form id="modello" class="modulo">
         ${Object.entries({ economico: "costa pochissimo, adatto all'uso quotidiano", qualita: "legge meglio le foto difficili, costa circa 40 volte di più" }).map(([k, d]) => `
@@ -493,6 +507,10 @@ function paginaImpostazioni() {
     document.getElementById("esito-chiave").innerHTML = ok ? avviso("Chiave salvata.", "ok") : avviso("Impossibile salvare: il browser blocca l'archivio locale.");
   });
   document.getElementById("modello").addEventListener("change", (e) => db.salvaModello(e.target.value));
+  document.getElementById("carattere").addEventListener("change", (e) => {
+    db.salvaCarattere(e.target.value);
+    applicaCarattere(db.profiloAttivo());
+  });
   document.getElementById("esporta").addEventListener("click", () => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([db.esporta()], { type: "application/json" }));
@@ -517,12 +535,20 @@ function paginaImpostazioni() {
 let incollaAttivo = null;
 addEventListener("paste", (e) => incollaAttivo?.(e));
 
+// Leggio Scuola per le elementari, Leggio dalle medie, salvo scelta diversa in Impostazioni.
+function applicaCarattere(profilo) {
+  const scelta = db.carattere();
+  const automatico = profilo && /elementare/.test(profilo.classe) ? "scuola" : "leggio";
+  document.documentElement.dataset.carattere = scelta === "automatico" ? automatico : scelta;
+}
+
 function mostra() {
   incollaAttivo = null;
   nascondiLettore();
   const [, pagina, a, b] = location.hash.split("/");
   document.querySelectorAll(".barra a").forEach((x) => x.classList.toggle("attiva", x.getAttribute("href") === `#/${pagina || ""}`));
   const profilo = db.profiloAttivo();
+  applicaCarattere(profilo);
   if (pagina === "impostazioni") paginaImpostazioni();
   else if (!profilo) paginaBenvenuto();
   else if (pagina === "nuova") paginaNuova(profilo);
